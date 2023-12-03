@@ -1,0 +1,22 @@
+version: '2'
+services:
+    zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        environment:
+            ZOOKEEPER_CLIENT_PORT: 2181 # Порт на котором поднят zookeeper
+            ZOOKEEPER_TICK_TIME: 2000 # Переод опроса zookeeper'ом kafka на то что kafka работает
+        ports:
+            - 2181:2181
+    kafka: 
+        image: confluentinc/cp-kafka:latest
+        depends_on:
+            - zookeeper # kafk'у запустить после zookeeper'а
+        ports:
+            - 29092:29092
+        environment:
+            KAFKA_BROKER_ID: 1 # id брокера в kafka
+            KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181' # zookeper к которому подключается kafka
+            KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:29092' # передаем данные без шифрования, настройка нужна для работы kafka web клиента от confluent (Подробности https://docs.confluent.io/platform/current/installation/docker/config-reference.html)
+            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+            KAFKA_OFFSETS_TOPEC_REPLICATION_FACTOR: 1 # говорим что у нас будет 1 нода kafka
+            
